@@ -95,21 +95,24 @@ WSGI_APPLICATION = 'traveller_log_be.wsgi.application'
 MAX_CONN_AGE = 600
 
 # settings for local environment...
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
-        "PASSWORD": env("DB_PASS"),
-        "HOST": env("DB_HOST"),
-        "PORT": env("DB_PORT"),
+if not "DATABASE_URL" in os.environ:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": env("DB_NAME"),
+            "USER": env("DB_USER"),
+            "PASSWORD": env("DB_PASS"),
+            "HOST": env("DB_HOST"),
+            "PORT": env("DB_PORT"),
+        }
     }
-}
 
 # ...and for deployment environment
-if "DATABASE_URL" in os.environ:
-    DATABASES["default"] = dj_database_url.config(
+else:
+    DATABASES = {
+        "default": dj_database_url.config(
         conn_max_age=MAX_CONN_AGE, ssl_require=True)
+    }
 
 
 # Password validation
