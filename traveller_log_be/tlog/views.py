@@ -27,6 +27,7 @@ def entries_list_view(req):
     view to create, list or update individual entries
     '''
     if req.method == 'GET':
+        # todo - filter feature
         entries = Entry.objects.all()
         entry_serializer = EntrySerializer(entries, many=True)
         return Response(data=entry_serializer.data, status=status.HTTP_200_OK)
@@ -37,10 +38,10 @@ def entries_list_view(req):
     return Response(data={"message":"method not supported"},
         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
 # /entries/{id} - GET specific entry
 # /entries/{id} - PUT update an entry
 # /entries/{id} - DELETE remove an entry
+
 
 # /travels/ - GET list of trips, POST create new trip
 @api_view(["GET", "POST"])
