@@ -13,12 +13,6 @@ def test_view(req):
     return HttpResponse("test view for the tlog")
 
 
-# to be moved elsewhere
-# /login/ - get
-# /auth/ - get
-# /users/ - post - create user; put - update user?
-
-
 # /entries/ - GET list of entries
 # /entries/ - POST new entry
 @api_view(["GET", "POST"])

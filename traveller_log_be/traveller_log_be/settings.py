@@ -46,6 +46,7 @@ else:
 
 INSTALLED_APPS = [
     'rest_framework',
+    'auth_token',
     'tlog',
     'corsheaders',
     # django defaults
