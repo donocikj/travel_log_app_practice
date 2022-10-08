@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import pytest
 
 from django.contrib.auth.models import User
@@ -15,4 +15,4 @@ def travel_sample(user_sample):
 
 @pytest.fixture
 def entry_sample_1(travel_sample):
-    yield Entry.objects.create(travel=travel_sample, location="testlocation", time=datetime.now(), content="testcontent")
+    yield Entry.objects.create(travel=travel_sample, location="testlocation", time=int(datetime.now(timezone.utc).timestamp()), content="testcontent")

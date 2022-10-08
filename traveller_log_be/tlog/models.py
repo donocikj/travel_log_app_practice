@@ -23,7 +23,7 @@ class Entry (models.Model):
     location = models.CharField(max_length=50,blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
-    time = models.DateTimeField(blank=True, null=True)
+    time = models.BigIntegerField(blank=True, null=True) #, default=int(datetime.now(timezone.utc).timestamp()))
     content = models.TextField(blank=True, null=True)
 
     def __str__(self):
