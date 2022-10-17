@@ -9,24 +9,30 @@ from traveller_log_be.settings import SECRET_KEY
 TOKEN_ALGORITHM = "HS256"
 TOKEN_EXPIRATION = 15
 
-def generate_token(username):
+def encode_token(payload):
     '''
     takes username and generates a token
     '''
+    print("preparing to encode")
+    # print(payload)
+    # user_id = payload["id"]
+    # username = payload["username"]
     token = jwt.encode({
-        "username":username,
+        "user_id":payload['id'],
+        "username":payload['username'],
         "exp":datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRATION),
-        "iat":datetime.utcnow
+        "iat":datetime.utcnow()
         }, SECRET_KEY, algorithm=TOKEN_ALGORITHM)
+    print(token)
     return token
 
-def is_token_valid(token, username):
+def is_token_valid(token, id):
     '''
-    decodes token and checks if username matches with claim
+    decodes token and checks if id matches with claim
     '''
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=TOKEN_ALGORITHM)
-        if payload.username == username:
+        if payload.id == id:
             return True
         else:
             return False
@@ -39,3 +45,8 @@ def is_request_valid(request):
     checks request for cookies
     '''
 
+class UserException(Exception):
+    '''
+    custom user exception
+    second verse same as the first
+    '''

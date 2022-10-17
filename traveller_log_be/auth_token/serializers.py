@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-class user_registration_deserializer(serializers.Serializer):
+class User_registration_deserializer(serializers.Serializer):
     '''
     Deserializer for user registration requests
     '''
@@ -11,3 +11,10 @@ class user_registration_deserializer(serializers.Serializer):
     email = serializers.CharField(required=False)
     
     # todo: validate password length?
+
+class Credentials_deserializer(serializers.Serializer):
+    '''
+    deserializer for the login endpoint
+    '''
+    username = serializers.CharField()
+    password = serializers.CharField()
