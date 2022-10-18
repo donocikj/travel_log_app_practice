@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import jwt
 
+from django.contrib.auth.models import User
 from traveller_log_be.settings import SECRET_KEY
 
 # todo: move elsewhere
@@ -26,24 +27,37 @@ def encode_token(payload):
     print(token)
     return token
 
-def is_token_valid(token, id):
+def decode_token(token):
     '''
-    decodes token and checks if id matches with claim
+    decodes token and returns its payload
     '''
+    return jwt.decode(token, SECRET_KEY, algorithms=TOKEN_ALGORITHM)
+
+
+def authenticate_request(request):
+    '''
+    checks request for cookies and returns User instance 
+    if logged in or None if not applicable
+    '''
+    # retrieve token from cookie
+    cookie = request.COOKIES.get("indigo_token")
+
+    # check cookie
+    if not cookie:
+        return None
+
+    # decode token
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=TOKEN_ALGORITHM)
-        if payload.id == id:
-            return True
-        else:
-            return False
+        payload = decode_token(cookie)
     except Exception as err:
         print(err)
-        return False
+        raise UserException("failed to decode cookie as valid") from err
 
-def is_request_valid(request):
-    '''
-    checks request for cookies
-    '''
+    # retrieve the user object by id
+    user = User.objects.filter(id=payload["user_id"]).first()
+
+    # return
+    return user
 
 class UserException(Exception):
     '''

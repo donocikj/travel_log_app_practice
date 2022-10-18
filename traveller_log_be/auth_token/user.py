@@ -39,7 +39,7 @@ def update_user(update_data):
     # apply changes
     # save
 
-def get_token(creds):
+def prepare_token(creds):
     # check if user exists
     # check password match
     # (exception: wrong username or password)

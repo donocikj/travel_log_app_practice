@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from auth_token.serializers import User_registration_deserializer
-from auth_token.user import create_user, get_token, update_user
-from auth_token.utils import UserException
+from auth_token.user import create_user, prepare_token, update_user
+from auth_token.utils import UserException, authenticate_request
 
 # Create your views here.
 
@@ -64,7 +64,7 @@ def login_view(req):
     try:
         # call token creating function
         print(req.data)
-        token = get_token(req.data)
+        token = prepare_token(req.data)
     except UserException as err:
         return Response(data={"message":str(err)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as err:
@@ -94,4 +94,13 @@ def auth_view(req):
     '''
 
     #validate token - failure: nobody is logged int
+    try:
+        user = authenticate_request(req)
+    except UserException as err:
+        print(err)
+        return Response(data={"message":str(err)}, status=status.HTTP_401_UNAUTHORIZED)
+
+    return Response(data={"id": user.id, "username": user.username }, status=status.HTTP_200_OK)
+
+
     # success: return {user_id, username}
