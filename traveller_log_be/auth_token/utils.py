@@ -8,7 +8,8 @@ from traveller_log_be.settings import SECRET_KEY
 
 # todo: move elsewhere
 TOKEN_ALGORITHM = "HS256"
-TOKEN_EXPIRATION = 15
+TOKEN_EXPIRATION = 120
+AUTH_COOKIE_KEY = "indigo_token"
 
 def encode_token(payload):
     '''
@@ -37,7 +38,8 @@ def decode_token(token):
 def authenticate_request(request):
     '''
     checks request for cookies and returns User instance 
-    if logged in or None if not applicable
+    if logged in, none if cookie is not set or is expired, 
+    raises an exception in case of other problems.
     '''
     # retrieve token from cookie
     cookie = request.COOKIES.get("indigo_token")
@@ -49,6 +51,9 @@ def authenticate_request(request):
     # decode token
     try:
         payload = decode_token(cookie)
+    except jwt.ExpiredSignatureError:
+        # token expired
+        return None
     except Exception as err:
         print(err)
         raise UserException("failed to decode cookie as valid") from err
@@ -64,3 +69,15 @@ class UserException(Exception):
     custom user exception
     second verse same as the first
     '''
+
+def refresh_token(user, response):
+    '''
+    function to refresh token cookie in the browser.
+    Takes user object and a response object as parameter.
+    '''
+    payload = {
+        "id": user.id,
+        "username": user.username
+    }
+    token = encode_token(payload)
+    response.set_cookie(key=AUTH_COOKIE_KEY, value=token, httponly=True)

@@ -4,7 +4,8 @@ from rest_framework import status
 
 from auth_token.serializers import User_registration_deserializer
 from auth_token.user import create_user, prepare_token, update_user
-from auth_token.utils import UserException, authenticate_request
+from auth_token.utils import UserException, authenticate_request, AUTH_COOKIE_KEY
+
 
 # Create your views here.
 
@@ -74,7 +75,7 @@ def login_view(req):
     print(token)
     print(dir(token))
     response = Response(data={"logged in":"success"}, status=status.HTTP_200_OK)
-    response.set_cookie(key="indigo_token",value=token, httponly=True)
+    response.set_cookie(key=AUTH_COOKIE_KEY,value=token, httponly=True)
 
     return response
     
@@ -85,6 +86,10 @@ def logout_view(req):
     '''
     clears token from the browser
     '''
+    response = Response(data={"logged out":"success"}, status=status.HTTP_200_OK)
+    response.delete_cookie(key=AUTH_COOKIE_KEY)
+
+    return response
 
 # /auth/ - get - current auth information
 @api_view(["GET"])
@@ -93,14 +98,15 @@ def auth_view(req):
     get auth information based on token so the frontend is told who is it servicing
     '''
 
-    #validate token - failure: nobody is logged int
+    #validate token - failure: nobody is logged in
     try:
         user = authenticate_request(req)
     except UserException as err:
         print(err)
         return Response(data={"message":str(err)}, status=status.HTTP_401_UNAUTHORIZED)
 
+    if user is None:
+        return Response(data={"message":"user not logged in or the login has expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    # success: return {user_id, username}
     return Response(data={"id": user.id, "username": user.username }, status=status.HTTP_200_OK)
 
-
-    # success: return {user_id, username}
