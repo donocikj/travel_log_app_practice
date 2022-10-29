@@ -33,11 +33,57 @@ def create_user(user_data):
 def update_user(update_data):
     '''
     take object deserialized from request, validate and update fields
+    expects current credentials as two of the fields.
     '''
     # retrieve the user object to be updated
-    # validate requested changes?
+    modified_user = User.objects.filter(username=update_data.get('username')).first()
+    
+    if modified_user is None:
+        # user specified doesn't exist
+        raise UserException("user specified for updating does not exist")
+
+    # check supplied password
+    if not modified_user.check_password(update_data.get('password')):
+        # password does not match the username
+        raise UserException("authorization failure")
+
+    # validate requested changes
+
+    # username
+    new_username = update_data.get('new_username')
+    if new_username:
+        if user_exists(username=new_username):
+            raise UserException("username taken")
+        else:
+            modified_user.username = new_username
+
+    # password
+    new_password = update_data.get('new_password')
+    if new_password:
+        if len(new_password) < 8:
+            raise UserException("sorry, your password is too short.")
+        else:
+            modified_user.set_password(new_password)
+
+    # first name
+    first_name = update_data.get('first_name')
+    if first_name:
+        modified_user.first_name = first_name
+
+    # last name
+    first_name = update_data.get('last_name')
+    if first_name:
+        modified_user.first_name = first_name
+
+    # email
+    first_name = update_data.get('email')
+    if first_name:
+        modified_user.first_name = first_name
+
     # apply changes
     # save
+    modified_user.save()
+    print("saved changes")
 
 def prepare_token(creds):
     # check if user exists
@@ -46,7 +92,7 @@ def prepare_token(creds):
     username = creds['username']
     password = creds['password']
 
-    user = User.objects.get(username=username)
+    user = User.objects.filter(username=username).first()
     if not user or not password or not user.check_password(password):
         raise UserException("incorrect username or password")
 

@@ -42,7 +42,7 @@ def authenticate_request(request):
     raises an exception in case of other problems.
     '''
     # retrieve token from cookie
-    cookie = request.COOKIES.get("indigo_token")
+    cookie = request.COOKIES.get(AUTH_COOKIE_KEY)
 
     # check cookie
     if not cookie:
