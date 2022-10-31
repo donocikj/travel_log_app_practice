@@ -19,7 +19,8 @@ class Entry (models.Model):
     Entry of a travel log, related to a date, place and with text content; tied to a travel
     '''
     travel = models.ForeignKey(Travel, on_delete=models.CASCADE)
-    # id within travel maybe
+    # id within travel maybe?
+    # entryid = models.IntegerField()
     location = models.CharField(max_length=50,blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)

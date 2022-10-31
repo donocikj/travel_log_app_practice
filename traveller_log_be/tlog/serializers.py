@@ -10,11 +10,11 @@ class TravelSerializer(serializers.ModelSerializer):
         model = Travel
         fields = '__all__'
 
-class TravelDeserializer(serializers.ModelSerializer):
+class TravelDeserializer(serializers.Serializer):
     '''
     deserializer for new or updated travels.
     '''
-    # todo validate user existing - or leave it to the auth logic in endpoint?
+    title = serializers.CharField(required=False)
 
 class EntrySerializer(serializers.ModelSerializer):
     '''

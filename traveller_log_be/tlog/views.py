@@ -5,7 +5,9 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 
 from tlog.models import Entry, Travel
-from tlog.serializers import EntrySerializer, TravelSerializer
+from tlog.serializers import EntrySerializer, TravelSerializer, TravelDeserializer
+from tlog.travel import create_travel
+from auth_token.utils import authenticate_request
 
 # Create your views here.
 
@@ -27,6 +29,15 @@ def entries_list_view(req):
         return Response(data=entry_serializer.data, status=status.HTTP_200_OK)
         # return Response(data={"message":"listing all entries"}, status=status.HTTP_200_OK)
     if req.method == 'POST':
+
+        # authenticate user
+        logged_user = authenticate_request(req)
+
+        if not logged_user:
+            return Response(data={"error":"missing authentication"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # check if travel is authored by the logged in user
+
         return Response(data={"message":"creating new entry"}, status=status.HTTP_201_CREATED)
 
     return Response(data={"message":"method not supported"},
@@ -54,6 +65,22 @@ def travels_list_view(req):
         # return Response(data={"message":"listing all travels"}, status=status.HTTP_200_OK)
 
     if req.method == 'POST':
+
+        # authenticate user
+        logged_user = authenticate_request(req)
+
+        if not logged_user:
+            return Response(data={"error":"missing authentication"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        new_travel_data = TravelDeserializer(data=req.data)
+
+        if not new_travel_data.is_valid():
+            print(new_travel_data.errors)
+            # it's literally just the title field which is not even mandatory
+            return Response(data={"error":"I have no idea how you managed that tbh"}, status=status.HTTP_400_BAD_REQUEST)
+
+        new_travel = create_travel(new_travel_data.validated_data, logged_user)
+
         return Response(data={"message":"creating new travel"}, status=status.HTTP_201_CREATED)
 
     return Response(data={"message":"method not supported"},

@@ -65,20 +65,21 @@ def update_user(update_data):
         else:
             modified_user.set_password(new_password)
 
+    # todo some loop with kwargs maybe? or would that be dangerous.
     # first name
     first_name = update_data.get('first_name')
     if first_name:
         modified_user.first_name = first_name
 
     # last name
-    first_name = update_data.get('last_name')
-    if first_name:
-        modified_user.first_name = first_name
+    last_name = update_data.get('last_name')
+    if last_name:
+        modified_user.first_name = last_name
 
     # email
-    first_name = update_data.get('email')
-    if first_name:
-        modified_user.first_name = first_name
+    email = update_data.get('email')
+    if email:
+        modified_user.first_name = email
 
     # apply changes
     # save
