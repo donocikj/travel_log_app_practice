@@ -5,8 +5,9 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 
 from tlog.models import Entry, Travel
-from tlog.serializers import EntrySerializer, TravelSerializer, TravelDeserializer
+from tlog.serializers import EntryDeserializer, EntrySerializer, TravelSerializer, TravelDeserializer
 from tlog.travel import create_travel
+from tlog.entry import create_entry
 from auth_token.utils import authenticate_request
 
 # Create your views here.
@@ -36,9 +37,27 @@ def entries_list_view(req):
         if not logged_user:
             return Response(data={"error":"missing authentication"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # check if travel is authored by the logged in user
+        entry_data = EntryDeserializer(data=req.data)
 
-        return Response(data={"message":"creating new entry"}, status=status.HTTP_201_CREATED)
+        if not entry_data.is_valid():
+            return Response(data={"error":"invalid input"}, status=status.HTTP_400_BAD_REQUEST)
+
+        print(entry_data.validated_data)
+        # check if travel is authored by the logged in user
+        # todo maybe refactor this logic to the create_entry function and put call in try block
+        travel = Travel.objects.filter(id=entry_data.validated_data.get("travel")).first()
+        print("travel")
+        print(travel)
+
+        if travel is None:
+            return Response(data={"error":"invalid travel"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if travel.traveller.id != logged_user.id:
+            return Response(data={"error":"travel does not belong to logged in user"}, status=status.HTTP_403_FORBIDDEN)
+
+        new_entry = create_entry(entry_data, travel)
+
+        return Response(data={"message":"creating new entry", "id":new_entry.id }, status=status.HTTP_201_CREATED)
 
     return Response(data={"message":"method not supported"},
         status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -60,7 +79,7 @@ def travels_list_view(req):
     if req.method == 'GET':
         travels = Travel.objects.all()
         travel_serializer = TravelSerializer(travels, many=True)
-        print(travel_serializer.data)
+        # print(travel_serializer.data)
         return Response(data=travel_serializer.data, status=status.HTTP_200_OK)
         # return Response(data={"message":"listing all travels"}, status=status.HTTP_200_OK)
 
@@ -81,7 +100,7 @@ def travels_list_view(req):
 
         new_travel = create_travel(new_travel_data.validated_data, logged_user)
 
-        return Response(data={"message":"creating new travel"}, status=status.HTTP_201_CREATED)
+        return Response(data={"message":"creating new travel", "id":new_travel.id}, status=status.HTTP_201_CREATED)
 
     return Response(data={"message":"method not supported"},
         status=status.HTTP_405_METHOD_NOT_ALLOWED)

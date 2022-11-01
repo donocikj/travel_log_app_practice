@@ -25,3 +25,16 @@ class EntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
         fields = '__all__'
+
+class EntryDeserializer(serializers.Serializer):
+    '''
+    deserializer for creating or updating entries.
+    '''
+    # todo: coordinate validation?
+    # todo: date and time validation
+    travel = serializers.IntegerField()
+    location = serializers.CharField(required=False)
+    latitude = serializers.FloatField(required=False)
+    longitude = serializers.FloatField(required=False)
+    time = serializers.IntegerField(required=False)
+    content = serializers.CharField()

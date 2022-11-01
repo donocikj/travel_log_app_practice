@@ -11,7 +11,7 @@ class Travel (models.Model):
     title = models.CharField(max_length=200,blank=True, null=True)
 
     def __str__(self):
-        return f'travel submitted by {self.traveller}'
+        return f'travel with id {self.id} submitted by {self.traveller}'
 
 
 class Entry (models.Model):
@@ -28,4 +28,4 @@ class Entry (models.Model):
     content = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f'entry from travel {self.travel}'
+        return f'entry from travel {self.travel},location: [{self.location}] absolute id: {self.id}'
