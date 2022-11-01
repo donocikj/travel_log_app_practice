@@ -17,8 +17,16 @@ def create_travel(travel_data, user):
     # todo catch exceptions? Or let the caller handle them.
     return Travel.objects.create(traveller=user, title=title)
 
-def update_travel():
-    pass
+def update_travel(update_data, travel):    
 
-def delete_travel():
-    pass
+    print(travel)
+
+    if update_data['title']:
+        travel.title = update_data['title']
+
+    travel.save()
+
+    return travel
+
+def delete_travel(travel):
+    travel.delete()

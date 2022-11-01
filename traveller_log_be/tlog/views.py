@@ -1,3 +1,4 @@
+from turtle import update
 from django.http import HttpResponse
 
 from rest_framework.response import Response
@@ -6,7 +7,7 @@ from rest_framework import status
 
 from tlog.models import Entry, Travel
 from tlog.serializers import EntryDeserializer, EntrySerializer, TravelSerializer, TravelDeserializer
-from tlog.travel import create_travel
+from tlog.travel import create_travel, delete_travel, update_travel
 from tlog.entry import create_entry
 from auth_token.utils import authenticate_request
 
@@ -55,7 +56,7 @@ def entries_list_view(req):
         if travel.traveller.id != logged_user.id:
             return Response(data={"error":"travel does not belong to logged in user"}, status=status.HTTP_403_FORBIDDEN)
 
-        new_entry = create_entry(entry_data, travel)
+        new_entry = create_entry(entry_data.validated_data, travel)
 
         return Response(data={"message":"creating new entry", "id":new_entry.id }, status=status.HTTP_201_CREATED)
 
@@ -106,3 +107,57 @@ def travels_list_view(req):
         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # /travels/{id} - GET, PUT, DELETE
+@api_view(['GET', 'PUT', 'DELETE'])
+def travel_individual_view(req, id):
+    '''
+    view pertaining to individual travel object
+    GET: retrieve particular travel and its entries
+    PUT: update travel data (title)
+    DELETE: remove the travel and its entries
+    '''
+
+    # retrieve travel by id in path param
+    selected_travel = Travel.objects.filter(id=id).first()
+
+    if selected_travel is None:
+        return Response(data={"message":"travel not found", "id":id}, status=status.HTTP_404_NOT_FOUND)
+
+    # no login required for GETting...
+    if req.method == 'GET':
+        # retrieve entries
+        entries = Entry.objects.filter(travel=selected_travel.id)
+
+        # put object together and return
+        full_travel = {
+            'travel':TravelSerializer(selected_travel).data,
+            'entries':EntrySerializer(entries, many=True).data
+        }
+        return Response(data=full_travel, status=status.HTTP_200_OK)
+
+    # authenticate
+    logged_user = authenticate_request(req)
+
+    if not logged_user:
+        return Response(data={"error":"missing authentication"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # check authorization of logged in user
+    if selected_travel.traveller.id != logged_user.id:
+        return Response(data={"message":"travel does not belong to logged in user", "id":id}, status=status.HTTP_403_FORBIDDEN)
+
+    if req.method == 'PUT':
+
+        update_data = TravelDeserializer(data=req.data)
+
+        if not update_data.is_valid():
+            print(update_data.errors)
+            return Response(data={"message":"failed to update - invalid input", "id":id}, status=status.HTTP_400_BAD_REQUEST)
+            
+        update_travel(update_data.validated_data, selected_travel)
+
+        return Response(data={"message":"updating travel", "id":id}, status=status.HTTP_200_OK)
+
+    if req.method == 'DELETE':
+
+        delete_travel(selected_travel)
+
+        return Response(data={"message":"deleting travel", "id":id}, status=status.HTTP_200_OK)
