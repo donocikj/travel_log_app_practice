@@ -17,7 +17,13 @@ def create_entry(entry_data, travel):
     return Entry.objects.create(**entry_fields)
 
 def update_entry(entry_data, entry):
+    # travel? (move to another travel by the same owner?)
+    # location
+    # latitude
+    # longitude
+    # time?
+    # content
     pass
 
 def delete_entry(entry):
-    pass
+    entry.delete()

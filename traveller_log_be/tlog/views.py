@@ -8,7 +8,7 @@ from rest_framework import status
 from tlog.models import Entry, Travel
 from tlog.serializers import EntryDeserializer, EntrySerializer, TravelSerializer, TravelDeserializer
 from tlog.travel import create_travel, delete_travel, update_travel
-from tlog.entry import create_entry
+from tlog.entry import create_entry, delete_entry, update_entry
 from auth_token.utils import authenticate_request
 
 # Create your views here.
@@ -63,10 +63,46 @@ def entries_list_view(req):
     return Response(data={"message":"method not supported"},
         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-# /entries/{id} - GET specific entry
-# /entries/{id} - PUT update an entry
-# /entries/{id} - DELETE remove an entry
+@api_view(["GET", "PUT", "DELETE"])
+def entry_individual_view(req, id):
+    '''
+    view to handle individual travel entries
+    GET specific entry
+    PUT update an entry
+    DELETE remove an entry
+    '''
 
+    selected_entry = Entry.objects.filter(id=id).first()
+
+    if selected_entry is None:
+        return Response(data={"message":"entry not found", "id":id}, status=status.HTTP_404_NOT_FOUND)
+
+    # auth not required in this case
+    if req.method == 'GET':
+        entry_serializer = EntrySerializer(selected_entry)
+        return Response(data=entry_serializer.data, status=status.HTTP_200_OK)
+
+    # auth
+    logged_user = authenticate_request(req)
+
+    if not logged_user:
+        return Response(data={"error":"missing authentication"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # check authorization of logged in user
+    if logged_user.id != selected_entry.travel.traveller.id:
+        return Response(data={"message":"entry does not belong to logged in user", "id":id}, status=status.HTTP_403_FORBIDDEN)
+
+    if req.method == 'PUT':
+        update_data = EntryDeserializer(data=req.data)
+        update_entry(update_data, selected_entry)
+        return Response(data={"message":"updating entry", "id":id}, status=status.HTTP_200_OK)
+
+    if req.method == 'DELETE':
+        delete_entry(selected_entry)
+        return Response(data={"message":"deleting entry", "id":id}, status=status.HTTP_200_OK)
+
+    return Response(data={"message":"method not supported"},
+        status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # /travels/ - GET list of trips, POST create new trip
 @api_view(["GET", "POST"])
