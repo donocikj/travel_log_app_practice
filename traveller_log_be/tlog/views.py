@@ -46,9 +46,14 @@ def entries_list_view(req):
         print(entry_data.validated_data)
         # check if travel is authored by the logged in user
         # todo maybe refactor this logic to the create_entry function and put call in try block
-        travel = Travel.objects.filter(id=entry_data.validated_data.get("travel")).first()
-        print("travel")
-        print(travel)
+        travel_id = entry_data.validated_data.get("travel")
+        if not travel_id:
+            return Response(data={"error":"invalid input: travel unspecified"}, status=status.HTTP_400_BAD_REQUEST)
+
+        travel = Travel.objects.filter(id=travel_id).first()
+
+        # print("travel")
+        # print(travel)
 
         if travel is None:
             return Response(data={"error":"invalid travel"}, status=status.HTTP_400_BAD_REQUEST)
@@ -94,7 +99,12 @@ def entry_individual_view(req, id):
 
     if req.method == 'PUT':
         update_data = EntryDeserializer(data=req.data)
-        update_entry(update_data, selected_entry)
+
+        if not update_data.is_valid():
+            print(update_data.errors)
+            return Response(data={"message":"failed to update - invalid input", "id":id}, status=status.HTTP_400_BAD_REQUEST)
+
+        update_entry(update_data.validated_data, selected_entry)
         return Response(data={"message":"updating entry", "id":id}, status=status.HTTP_200_OK)
 
     if req.method == 'DELETE':

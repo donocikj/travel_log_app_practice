@@ -21,7 +21,7 @@ def update_travel(update_data, travel):
 
     print(travel)
 
-    if update_data['title']:
+    if update_data.get('title'):
         travel.title = update_data['title']
 
     travel.save()

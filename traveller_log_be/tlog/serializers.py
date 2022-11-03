@@ -31,7 +31,10 @@ class EntryDeserializer(serializers.Serializer):
     # todo: coordinate validation?
     # todo: date and time validation
     # todo field length control?
-    travel = serializers.IntegerField()
+
+    # this one is required for creation but not update...
+    travel = serializers.IntegerField(required=False)
+
     location = serializers.CharField(required=False)
     latitude = serializers.FloatField(required=False)
     longitude = serializers.FloatField(required=False)
