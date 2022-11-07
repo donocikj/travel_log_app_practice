@@ -19,7 +19,7 @@ def create_travel(travel_data, user):
 
 def update_travel(update_data, travel):    
 
-    print(travel)
+    # print(travel)
 
     if update_data.get('title'):
         travel.title = update_data['title']

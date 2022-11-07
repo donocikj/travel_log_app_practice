@@ -77,7 +77,7 @@ def login_view(req):
 
     # print(token)
     # print(dir(token))
-    response = Response(data={"logged in":"success"}, status=status.HTTP_200_OK)
+    response = Response(data={"logged in":"success", "token": token}, status=status.HTTP_200_OK)
     response.set_cookie(key=AUTH_COOKIE_KEY,value=token, httponly=True)
 
     return response

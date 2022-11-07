@@ -15,7 +15,7 @@ def encode_token(payload):
     '''
     takes username and generates a token
     '''
-    print("preparing to encode")
+    # print("preparing to encode")
     # print(payload)
     # user_id = payload["id"]
     # username = payload["username"]
@@ -25,7 +25,7 @@ def encode_token(payload):
         "exp":datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRATION),
         "iat":datetime.utcnow()
         }, SECRET_KEY, algorithm=TOKEN_ALGORITHM)
-    print(token)
+    # print(token)
     return token
 
 def decode_token(token):
