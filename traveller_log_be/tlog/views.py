@@ -1,4 +1,3 @@
-from turtle import update
 from django.http import HttpResponse
 
 from rest_framework.response import Response
