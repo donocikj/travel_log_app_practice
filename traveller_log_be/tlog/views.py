@@ -16,6 +16,11 @@ def test_view(req):
     return HttpResponse("test view for the tlog")
 
 
+# *********************************************************************************************
+# entries views
+# *********************************************************************************************
+
+
 # /entries/ - GET list of entries
 # /entries/ - POST new entry
 @api_view(["GET", "POST"])
@@ -42,7 +47,7 @@ def entries_list_view(req):
         if not entry_data.is_valid():
             return Response(data={"error":"invalid input"}, status=status.HTTP_400_BAD_REQUEST)
 
-        print(entry_data.validated_data)
+        # print(entry_data.validated_data)
         # check if travel is authored by the logged in user
         # todo maybe refactor this logic to the create_entry function and put call in try block
         travel_id = entry_data.validated_data.get("travel")
@@ -112,6 +117,12 @@ def entry_individual_view(req, id):
 
     return Response(data={"message":"method not supported"},
         status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+# *********************************************************************************************
+# travels views
+# *********************************************************************************************
+
 
 # /travels/ - GET list of trips, POST create new trip
 @api_view(["GET", "POST"])
