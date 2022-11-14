@@ -10,6 +10,9 @@ from tlog.travel import create_travel, delete_travel, update_travel
 from tlog.entry import create_entry, delete_entry, update_entry
 from auth_token.utils import authenticate_request
 
+# todo move constants to some centralized settings location
+DEFAULT_RESULT_PAGE=10
+
 # Create your views here.
 
 def test_view(req):
@@ -29,8 +32,40 @@ def entries_list_view(req):
     view to create, list or update individual entries
     '''
     if req.method == 'GET':
+
+        # print(req)
+        # print(dir(req))
+        # print(req.query_params)
+        # print(req.GET)
         # todo - filter feature
-        entries = Entry.objects.all()
+
+        requested_offset = req.query_params.get("from")
+        if requested_offset is None:
+            offset = 0
+        else:
+            try:
+                offset = int(requested_offset)
+
+            except ValueError:
+                offset = 0
+
+        requested_page_size = req.query_params.get("page")
+        if requested_page_size is None:
+            page_size = DEFAULT_RESULT_PAGE
+        else:
+            try:
+                page_size = int(requested_page_size)
+
+            except ValueError:
+                page_size = DEFAULT_RESULT_PAGE
+
+        
+        try:
+            entries = Entry.objects.all()[offset:offset+page_size]
+        except ValueError:
+            return Response(data={"message":"negative indexing is not supported"}, status=status.HTTP_400_BAD_REQUEST)
+
+
         entry_serializer = EntrySerializer(entries, many=True)
         return Response(data=entry_serializer.data, status=status.HTTP_200_OK)
         # return Response(data={"message":"listing all entries"}, status=status.HTTP_200_OK)
@@ -134,7 +169,39 @@ def travels_list_view(req):
     # todo: everything
 
     if req.method == 'GET':
-        travels = Travel.objects.all()
+
+
+        #pagination
+        # todo: filters 
+        requested_offset = req.query_params.get("from")
+        if requested_offset is None:
+            offset = 0
+        else:
+            try:
+                offset = int(requested_offset)
+
+            except ValueError:
+                offset = 0
+
+        requested_page_size = req.query_params.get("page")
+        if requested_page_size is None:
+            page_size = DEFAULT_RESULT_PAGE
+        else:
+            try:
+                page_size = int(requested_page_size)
+
+            except ValueError:
+                page_size = DEFAULT_RESULT_PAGE
+
+        
+        try:
+            travels = Travel.objects.all()[offset:offset+page_size]
+        except ValueError:
+            return Response(data={"message":"negative indexing is not supported"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+        # travels = Travel.objects.all()
         travel_serializer = TravelSerializer(travels, many=True)
         # print(travel_serializer.data)
         return Response(data=travel_serializer.data, status=status.HTTP_200_OK)
