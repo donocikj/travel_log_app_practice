@@ -173,6 +173,7 @@ def travels_list_view(req):
 
         #pagination
         # todo: filters 
+        # todo maybe use paginator instead?
         requested_offset = req.query_params.get("from")
         if requested_offset is None:
             offset = 0
