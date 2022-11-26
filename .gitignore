@@ -130,3 +130,6 @@ dmypy.json
 
 # js & vue
 node_modules
+
+# docker
+docker-compose.yml
