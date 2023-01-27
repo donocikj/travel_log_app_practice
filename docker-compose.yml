@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+  indigo_be:
+    build:
+      context: .
+      target: be_build
+    # volumes:
+    #   - .:/code
+    command: python ./traveller_log_be/manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - db
+  indigo_fe:
+    build:
+      context: .
+      target: fe_build
+    # volumes:
+    #   - ./traveller_log_fe/src:/code/traveller_log_fe/src
+    command: npm run dev
+    ports:
+      - "5173:5173"
+    depends_on:
+    - indigo_be
+volumes:
+  postgres_data:
