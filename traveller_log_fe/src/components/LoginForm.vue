@@ -1,23 +1,32 @@
 <script setup>
 import {ref} from "vue";
 import {loginAttempt} from "../apicalls/userCalls.js"
+import { useCredStore } from "../stores/cred.js";
 
 
-const username = ref("");
-const password = ref("");
+const creds = useCredStore()
+
+const form_username = ref("");
+const form_password = ref("");
 
 const submitLogin = async (e) => {
     // take the inputs, validate, wrap in a proper json, 
     // send to backend and handle its response by updating 
-    loginAttempt({
-        username: username.value, 
-        password: password.value
+    // loginAttempt({
+    //     username: form_username.value, 
+    //     password: form_password.value
+    // })
+    creds.login({
+        username: form_username.value,
+        password: form_password.value
     })
+
+
     // app state hopefully with credentials.
     // preferably not do all in this block.
-    console.log(e)
-    console.log(username.value)
-    console.log(password.value)
+    // console.log(e)
+    // console.log(form_username.value)
+    // console.log(form_password.value)
     // if login was successful, navigate to default view?
     // if it wasn't, show message
 }
@@ -33,7 +42,7 @@ const submitLogin = async (e) => {
             type="text"
             required
             autocomplete="username"
-            v-model="username"
+            v-model="form_username"
         />
 
         <label for="passwordInput">Password</label>
@@ -43,7 +52,7 @@ const submitLogin = async (e) => {
             required
             minlength="8"
             autocomplete="current-password"
-            v-model="password"
+            v-model="form_password"
         />
 
         <button type="submit">Submit</button>

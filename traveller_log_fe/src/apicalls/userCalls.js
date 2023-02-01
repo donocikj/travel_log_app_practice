@@ -4,6 +4,7 @@ import {useCredStore} from "../stores/cred.js"
 const hostname = location.hostname
 const port = 8000
 
+// 
 export function loginAttempt(creds) {
     console.log(`calling:`)
     console.log(`http://${hostname}:${port}/auth/login/`)
@@ -22,8 +23,15 @@ export function loginAttempt(creds) {
             // test for status of response
 
             // update creds in state?
-            useCredStore().username = creds.username
+            // useCredStore().username = creds.username
             // return creds
+            return res.json()
+        })
+        .then(async (data)=>{
+            // return data - in case of successful login 
+            // that means username and id of the user (and the token... which probably doesn't need to be there. 
+            // TODO: get rid of token in the json response.)
+            return data
         })
         .catch(err => {
             // handle errors
@@ -81,5 +89,38 @@ export function logoutCall() {
         })
         .catch((err) => {
             // something went wrong
+        })
+}
+
+export function registerAttempt(creds) {
+    console.log(`calling:`)
+    console.log(`http://${hostname}:${port}/auth/users/`)
+    return fetch(`http://${hostname}:${port}/auth/users/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            "content-type":"application/json",
+        },
+        body: JSON.stringify({
+            username: creds.username,
+            password: creds.password,
+        })
+    })
+        .then(async (res)=>{
+            // test for status of response
+
+            // update creds in state?
+            // useCredStore().username = creds.username
+            // return creds
+            return res.json()
+        })
+        .then(async (data)=>{
+            // return data - in case of successful login 
+            // that means username and id of the user (and the token... which probably doesn't need to be there. 
+            // TODO: get rid of token in the json response.)
+            return data
+        })
+        .catch(err => {
+            // handle errors
         })
 }

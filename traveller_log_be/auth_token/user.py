@@ -105,5 +105,9 @@ def prepare_token(creds):
     token = encode_token(payload)
 
     # return token
-    return token
+    return {
+        "username": username,
+        "id": user.id,
+        "token": token
+    }
 

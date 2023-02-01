@@ -26,10 +26,19 @@ export const useCredStore = defineStore({
 
         async login(creds) {
             // make the call
+            let loginResult = await loginAttempt(creds)
 
             // deal with failure (ensure login is available)
-
+            if(!loginResult) {
+                this.username = ""
+                this.userId = 0
+            }
             // deal with success (update user id and username)
+            else {
+                console.log(loginResult)
+                this.username = loginResult.welcome
+                this.userId = loginResult.id
+            }
 
             return {msg: `login attempt with ${creds.username}, ${creds.password}`}
         },

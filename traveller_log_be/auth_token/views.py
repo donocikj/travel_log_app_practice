@@ -67,7 +67,7 @@ def login_view(req):
     try:
         # call token creating function
         # print(req.data)
-        token = prepare_token(req.data)
+        token_data = prepare_token(req.data)
     except UserException as err:
         return Response(data={"message":str(err)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as err:
@@ -77,8 +77,8 @@ def login_view(req):
 
     # print(token)
     # print(dir(token))
-    response = Response(data={"logged in":"success", "token": token}, status=status.HTTP_200_OK)
-    response.set_cookie(key=AUTH_COOKIE_KEY,value=token, httponly=True)
+    response = Response(data={"welcome":token_data["username"], "id":token_data["id"], "token": token_data["token"]}, status=status.HTTP_200_OK)
+    response.set_cookie(key=AUTH_COOKIE_KEY,value=token_data["token"], httponly=True)
 
     return response
 
