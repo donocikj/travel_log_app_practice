@@ -1,6 +1,6 @@
 <script setup>
 import {ref} from "vue";
-import {registerAttempt} from "../apicalls/userCalls.js"
+import {registerAttempt} from "../apicalls/authCalls.js"
 
 
 const username = ref("");
@@ -19,10 +19,10 @@ const submitSignUp = async (e) => {
     })
     // app state hopefully with credentials.
     // preferably not do all in this block.
-    console.log(signupResult)
-    console.log(e)
-    console.log(username.value)
-    console.log(password.value)
+    // console.log(signupResult)
+    // console.log(e)
+    // console.log(username.value)
+    // console.log(password.value)
     // if signup was successful, navigate to login page?
     // if it wasn't, show message
 }

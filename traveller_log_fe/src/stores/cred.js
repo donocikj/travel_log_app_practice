@@ -1,12 +1,14 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { credRetrievalAttempt, loginAttempt, logoutCall } from '../apicalls/userCalls'
+import { credRetrievalAttempt, loginAttempt, logoutCall, registerAttempt } from '../apicalls/authCalls'
 
 export const useCredStore = defineStore({
     id: 'cred', 
     state: () => ({
         username: ref(""),
         userId: ref(0),
+        // is this really the best way to go around this...?
+        problem: ref("")
     }),
 
     getters: {
@@ -29,7 +31,8 @@ export const useCredStore = defineStore({
             let loginResult = await loginAttempt(creds)
 
             // deal with failure (ensure login is available)
-            if(!loginResult) {
+            if(loginResult.err) {
+                this.problem = loginResult.err
                 this.username = ""
                 this.userId = 0
             }
@@ -38,9 +41,10 @@ export const useCredStore = defineStore({
                 console.log(loginResult)
                 this.username = loginResult.welcome
                 this.userId = loginResult.id
+                this.problem = ""
             }
 
-            return {msg: `login attempt with ${creds.username}, ${creds.password}`}
+            // return {msg: `login attempt with ${creds.username}, ${creds.password}`}
         },
 
         // logout
@@ -57,10 +61,11 @@ export const useCredStore = defineStore({
 
         async signUp(creds) {
             // make the call
+            let registrationResult = await registerAttempt(creds)
 
-            // deal with failure (show appropriate msg)
+            // deal with failure (show appropriate msg) (create problem)
 
-            // prompt login (nav to login view)
+            // prompt login (nav to login view) (clear problem)
         }
     }
     

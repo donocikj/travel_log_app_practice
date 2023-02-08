@@ -2,9 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 
 import { useCredStore } from './stores/cred.js'
-import { credRetrievalAttempt } from './apicalls/userCalls.js'
 
-import HelloWorld from './components/HelloWorld.vue'
 import TitleComp from './components/TitleComp.vue'
 import LoginComp from './components/LoginComp.vue'
 import InfoPane from './components/InfoPane.vue'

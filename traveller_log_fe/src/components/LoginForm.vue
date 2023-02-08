@@ -1,10 +1,13 @@
 <script setup>
 import {ref} from "vue";
-import {loginAttempt} from "../apicalls/userCalls.js"
+import { useRouter } from "vue-router";
+
+import { loginAttempt } from "../apicalls/authCalls.js";
 import { useCredStore } from "../stores/cred.js";
 
 
-const creds = useCredStore()
+const creds = useCredStore();
+const router = useRouter();
 
 const form_username = ref("");
 const form_password = ref("");
@@ -12,23 +15,19 @@ const form_password = ref("");
 const submitLogin = async (e) => {
     // take the inputs, validate, wrap in a proper json, 
     // send to backend and handle its response by updating 
-    // loginAttempt({
-    //     username: form_username.value, 
-    //     password: form_password.value
-    // })
-    creds.login({
+    
+    await creds.login({
         username: form_username.value,
         password: form_password.value
     })
 
-
-    // app state hopefully with credentials.
-    // preferably not do all in this block.
-    // console.log(e)
-    // console.log(form_username.value)
-    // console.log(form_password.value)
     // if login was successful, navigate to default view?
     // if it wasn't, show message
+    if(creds.userId) {
+        router.push({name:"home"})
+    }
+
+
 }
 </script>
 
@@ -57,5 +56,10 @@ const submitLogin = async (e) => {
 
         <button type="submit">Submit</button>
     </form>
+    <div v-if="creds.problem">
+        <strong>
+            {{creds.problem}}
+        </strong>
+    </div>
 
 </template>
